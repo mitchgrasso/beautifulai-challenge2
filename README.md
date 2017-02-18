@@ -11,7 +11,7 @@ have detailed knowledge of how to architect and maintain a complicated Model-Vie
 With this challenge, we are asking you to implement a simple single-page Model-View application that loads and presents data from an external API using vanilla javascript.
 
 ## Goal
-- Build a simple model-view framework from scratch
+- Build a simple model-view single-page application from scratch
 - Load data from the Star Wars API and present it in a view.
 - Wire up some simple interactivity that loads additional data into a view upon user interaction.
 
