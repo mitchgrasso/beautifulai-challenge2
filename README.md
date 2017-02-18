@@ -20,10 +20,14 @@ With this challenge, we are asking you to implement a simple single-page Model-V
   - Your application should bootstrap itself from index.html into a single main.js function
 - Upon startup, load a list of people from the Star Wars API into your model
   - The url for loading people from the Star Wars API is http://swapi.co/api/people/
-  - Your model should contain a People collection model that contains a Person model for each entry loaded.
-- Render a People view into the document body. Your People view should render a list of Person views that display some properties (like the person's name) from each Person model.
-- Add interactivity so that when a user clicks on any Person view, you dynamically load data about that person's homeplanet from the Star Wars API into a new Planet model and then render a Planet view attached to the Person view that displays some properties (like the planet name). The url for loading a person's homeplanet is included in the JSON properties returned for each person.
-  
+- Render a simple list of the people models you loaded including some properties from each model (like the person's name).
+- Add interactivity so that when a user clicks on any person, you dynamically load additional data about that person's homeplanet from the Star Wars API and displays it's name.  
+  - The url for loading a person's homeplanet is included in the JSON properties returned for each person.
+
+- Your model and view classes can be simple javascript objects. You do not need to implement a resuable framework.
+- The point of this challenge is to demonstrate a strong understanding of MV architecture and how you would architect the flow of data
+from an external resource through a set of models and then render into a view.
+
 Documentation and more information about the Star Wars API can be found at https://swapi.co
 
 ## Project Constraints
