@@ -24,7 +24,7 @@ With this challenge, we are asking you to implement a simple single-page Model-V
 - Render a simple list of the people models you loaded including some properties from each model (like the person's name).
 - Add interactivity so that when a user clicks on any person, you dynamically load additional data about that person's homeplanet from the Star Wars API and displays it's name.  
   - The url for loading a person's homeplanet is included in the JSON properties returned for each person.
-- Your model and view classes can be simple javascript objects. You do not need to implement a resuable framework.
+- NOTE: Your model and view classes can be simple one-off javascript objects. You do not need to implement a full resuable framework. 
 
 Documentation and more information about the Star Wars API can be found at https://swapi.co
 
