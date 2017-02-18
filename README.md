@@ -11,6 +11,7 @@ have detailed knowledge of how to architect and maintain a complicated Model-Vie
 With this challenge, we are asking you to implement a simple single-page Model-View application that loads and presents data from an external API using vanilla javascript.
 
 ## Goal
+- Demonstrate a strong understanding of MV architecture and how you would architect the flow of data from an external resource through a set of models and then into a view.
 - Build a simple model-view single-page application from scratch
 - Load data from the Star Wars API and present it in a view.
 - Wire up some simple interactivity that loads additional data into a view upon user interaction.
@@ -23,10 +24,7 @@ With this challenge, we are asking you to implement a simple single-page Model-V
 - Render a simple list of the people models you loaded including some properties from each model (like the person's name).
 - Add interactivity so that when a user clicks on any person, you dynamically load additional data about that person's homeplanet from the Star Wars API and displays it's name.  
   - The url for loading a person's homeplanet is included in the JSON properties returned for each person.
-
 - Your model and view classes can be simple javascript objects. You do not need to implement a resuable framework.
-- The point of this challenge is to demonstrate a strong understanding of MV architecture and how you would architect the flow of data
-from an external resource through a set of models and then render into a view.
 
 Documentation and more information about the Star Wars API can be found at https://swapi.co
 
