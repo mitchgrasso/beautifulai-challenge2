@@ -24,24 +24,47 @@ var utils = {
   }
 }
 
-//searchbar
-  //form entry
-  //make axios call to people
-  //if people is not in any of the objects, make axios call to next
-  //if runs out of next, return not found
-    //if next === null || if !next
-  //else make popup with name and info
-
 var searchBar = () => {
-  var formInput = () => {
-    var handleSubmit = () => {
-      console.log('searching for ', input.value)
-      //axios search logic here
+  var status = () => {
+    var el = document.createElement('div')
+    return el
+  }
+
+  var formInput = (status) => {
+    var handleSubmit = (input, status) => {
+      var recursiveSearch = (val) => {
+        var url = "http://swapi.co/api/people/?page=" + val
+        var stats
+        axios.get(url)
+        .then((res) => {
+          stats = res.data.results.filter((entry) => {
+            return entry.name.toLowerCase() === input.toLowerCase()
+          })
+          console.log(stats)
+          console.log(res.data.next)
+          if(stats[0]) {
+            console.log("found")
+            status.innerHTML = ""
+            popUp(input)
+            return
+          }
+          if (!stats.length && res.data.next) {
+            recursiveSearch(val + 1)
+          } else {
+            status.innerHTML = "not found"
+          }
+        })
+        .catch((err) => {
+          console.log(err)
+        })
+      }
+      recursiveSearch(1)
+      status.innerHTML = "searching for: " + input
     }
 
-    var handleKeyDown = (input, e) => {
+    var handleKeyDown = (input, status, e) => {
       if (e.key === 'Enter') {
-        handleSubmit(input.value)
+        handleSubmit(input.value, status)
         input.value = ""
       }
     }
@@ -49,11 +72,14 @@ var searchBar = () => {
     var input = document.createElement('input')
     input.type = "text"
     input.placeholder = "search"
-    input.addEventListener('keydown', handleKeyDown.bind(this, input), false)
+    input.addEventListener('keydown', handleKeyDown.bind(this, input, status), false)
     return input
   }
+
+  var status = status()
   var searchDiv = document.createElement('div')
-  searchDiv.appendChild(formInput())
+  searchDiv.appendChild(formInput(status))
+  searchDiv.appendChild(status)
   document.body.appendChild(searchDiv)
 }
 
