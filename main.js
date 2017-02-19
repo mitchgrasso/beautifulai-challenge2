@@ -10,15 +10,6 @@ var styles = {
 }
 
 var utils = {
-  getData: (url, cb, params) => {
-    axios.get(url).then((res) => {
-      res.data.results.forEach((entry) => {
-        cb(entry[params])
-      })
-    }).catch((err) => {
-      console.log(err)
-    })
-  },
   styleElement: (el, className) => {
     var tag = el.tagName.toLowerCase()
     if(!className) {
@@ -33,8 +24,18 @@ var utils = {
   }
 }
 
-var popUp = () => {
+var popUp = (data) => {
+  console.log(data)
+  var popUp = document.createElement('div')
+  popUp.id = "popUp"
+  popUp.innerHTML = data
+  popUp.addEventListener("click", () => {
+    document.body.removeChild(popUp)
+  }, false)
 
+  if(!document.getElementById('popUp')) {
+    document.body.appendChild(popUp)
+  } 
 }
 
 var PersonDetails = (data) => {
@@ -43,17 +44,30 @@ var PersonDetails = (data) => {
   return el
 }
 
-var PersonEntry = (data) => {
+var PersonEntry = (name, url) => {
   var el = document.createElement("div")
   el.addEventListener("click", () => {
-    console.log("removed" + el)
-    document.body.removeChild(el)
-    //render some details
+    axios.get(url)
+    .then((res) => {
+      popUp(res.data.name)
+    })
+    .catch((err) => {
+      console.log(err)
+    })
   }, false)
-  el.appendChild(PersonDetails(data))
+  utils.styleElement(el, "cool")
+  el.appendChild(PersonDetails(name))
   document.body.appendChild(el)
 }
 
 window.onload = () => {
-  utils.getData('http://swapi.co/api/people/', PersonEntry, "name")
+  axios.get('http://swapi.co/api/people/')
+  .then((res) => {
+    res.data.results.forEach((entry) => {
+      PersonEntry(entry.name, entry.url)
+    })
+  })
+  .catch((err) => {
+    console.log(err)
+  })
 }
