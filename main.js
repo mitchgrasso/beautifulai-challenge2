@@ -1,11 +1,18 @@
 var styles = {
-  "div": {
-    background: "grey",
-    "font-size": "100px",
-    border: "1px solid green"
+  "list": {
+    background: "orange",
+    width: window.innerWidth / 3,
+    "font-size": "1.25em",
+    "font-family": "sans-serif",
   },
-  "cool": {
-    background: "orange"
+  "blueCenter": {
+    width: window.innerWidth / 3,
+    "font-family": "sans-serif",
+    "text-align": "center",
+    "background": "lightblue"
+  },
+  "searchBar": {
+    width: window.innerWidth / 3
   }
 }
 
@@ -32,6 +39,7 @@ var searchBar = () => {
 
   var formInput = (status) => {
     var handleSubmit = (input, status) => {
+      //move this
       var recursiveSearch = (val) => {
         var url = "http://swapi.co/api/people/?page=" + val
         var stats
@@ -40,10 +48,7 @@ var searchBar = () => {
           stats = res.data.results.filter((entry) => {
             return entry.name.toLowerCase() === input.toLowerCase()
           })
-          console.log(stats)
-          console.log(res.data.next)
           if(stats[0]) {
-            console.log("found")
             status.innerHTML = ""
             popUp(input)
             return
@@ -59,6 +64,7 @@ var searchBar = () => {
         })
       }
       recursiveSearch(1)
+      utils.styleElement(status, "blueCenter")
       status.innerHTML = "searching for: " + input
     }
 
@@ -70,6 +76,7 @@ var searchBar = () => {
     }
 
     var input = document.createElement('input')
+    utils.styleElement(input, "searchBar")
     input.type = "text"
     input.placeholder = "search"
     input.addEventListener('keydown', handleKeyDown.bind(this, input, status), false)
@@ -84,20 +91,24 @@ var searchBar = () => {
 }
 
 var popUp = (data) => {
+  //this is all the render method
   var popUp = document.createElement('div')
+  utils.styleElement(popUp, "blueCenter")
   popUp.id = "popUp"
-  popUp.innerHTML = "a popup about " + data
+  popUp.innerHTML = "a popup about " + data + " - click to close"
   popUp.addEventListener("click", () => {
     document.body.removeChild(popUp)
   }, false)
-
-  if(!document.getElementById('popUp')) {
+  if (!document.getElementById('popUp')) {
     document.body.appendChild(popUp)
-  } 
+  }  else {
+    document.body.removeChild(document.getElementById("popUp"))
+    document.body.appendChild(popUp)
+  }
 }
 
 var PersonEntry = (name, url) => {
-  //todo -> make obj instead of var
+  //todo -> make classes
   var PersonDetails = (data) => {
     var details = document.createElement("span")
     details.innerHTML = data
@@ -115,7 +126,7 @@ var PersonEntry = (name, url) => {
     })
   }, false)
 
-  utils.styleElement(el, "cool")
+  utils.styleElement(el, "list")
   el.appendChild(PersonDetails(name))
   document.body.appendChild(el)
 }
@@ -125,6 +136,10 @@ window.onload = () => {
   axios.get('http://swapi.co/api/people/')
   .then((res) => {
     res.data.results.forEach((entry) => {
+      //fix code structure
+      //ie var list = new PersonEntry(entry.name, entry.url)
+      //list.render()
+      //etc
       PersonEntry(entry.name, entry.url)
     })
   })
