@@ -15,6 +15,7 @@ var styles = {
   "searchBar": {
     width:  "100%",
     height: "15%",
+    "padding-left": "5px",
     "font-family": "Open Sans, sans-serif",
     "font-size": "2em",
     border: "none",
@@ -27,15 +28,35 @@ var styles = {
     height: window.innerHeight/2,
     border: "1px solid black",
     "overflow": "hidden",
-    background: "grey"
+    background: "lightgrey"
   },
   "entry_wrapper": {
     height: "70%",
     "overflow-x": "hidden",
     "overflow-y": "scroll",
   },
+  "navigation": {
+    background: "white",
+    height: "15%"
+  },
   "button": {
-    background: "lime"
+    width: "40%",
+    "text-align": "center",
+    "font-size": "1.75em",
+    "font-family": "Open Sans, sans-serif",
+    display: "inline-block",
+  },
+  "current": {
+    width: "15%",
+    height: "100%",
+    background: "lightgrey",
+    "border-right": "1px solid black",
+    "border-top": "1px solid black",
+    "padding-top": "1%",
+    "text-align": "center",
+    "font-size": "1.75em",
+    "font-family": "Open Sans, sans-serif",
+    display: "inline-block",
   }
 }
 
@@ -207,15 +228,19 @@ class Navigation {
   }
 
   render () {
-    this.navigation_wrapper = utils.createEl('div', null)
+    this.navigation_wrapper = utils.createEl('div', null, "navigation")
+    this.navigation_wrapper.id = "navigation"
     //placeholders
     //current page circle
+
+    this.current = utils.createEl('div', this.page, 'current')
+    this.navigation_wrapper.appendChild(this.current)
 
     axios.get("http://swapi.co/api/people/?page=" + this.page)
     .then((res) => {
       this.previousDisabled = !res.data.previous
       this.nextDisabled = !res.data.next
-      this.navigation_wrapper.appendChild(new NavButton("previous", this.page -1, this.previousDisabled).render())
+      this.navigation_wrapper.appendChild(new NavButton("prev", this.page -1, this.previousDisabled).render())
       this.navigation_wrapper.appendChild(new NavButton("next", this.page +1, this.nextDisabled).render())
     })
     .catch((err) => {
