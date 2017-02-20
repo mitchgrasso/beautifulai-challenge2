@@ -44,31 +44,31 @@ class InputComponent {
     this.status = status
   }
 
+  recursiveSearch (val, input) {
+    var url = "http://swapi.co/api/people/?page=" + val
+    axios.get(url)
+    .then((res) => {
+      var stats = res.data.results.filter((entry) => {
+        return entry.name.toLowerCase() === input.toLowerCase()
+      })
+      if(stats[0]) {
+        this.status.innerHTML = null
+        document.body.appendChild(new popUpComponent(stats[0].name, stats[0].homeworld).render())
+        return
+      }
+      if (!stats.length && res.data.next) {
+        this.recursiveSearch(val + 1, input)
+      } else {
+        this.status.innerHTML = "not found"
+      }
+    })
+    .catch((err) => {
+      console.log(err)
+    })
+  }
+
   handleSubmit (input) {
-    var recursiveSearch = (val) => {
-      var url = "http://swapi.co/api/people/?page=" + val
-      axios.get(url)
-      .then((res) => {
-        var stats = res.data.results.filter((entry) => {
-          return entry.name.toLowerCase() === input.toLowerCase()
-        })
-        if(stats[0]) {
-          this.status.innerHTML = null
-          document.body.appendChild(new popUpComponent(input).render())
-          //this.container.appendChild
-          return
-        }
-        if (!stats.length && res.data.next) {
-          recursiveSearch(val + 1)
-        } else {
-          this.status.innerHTML = "not found"
-        }
-      })
-      .catch((err) => {
-        console.log(err)
-      })
-    }
-    recursiveSearch(1)
+    this.recursiveSearch(1, input)
     utils.styleElement(this.status, "blueCenter")
     this.status.innerHTML = "searching for: " + input
   }
@@ -91,40 +91,57 @@ class InputComponent {
 
 //searchbar
 
-var searchBar = () => {
-  var searchDiv = utils.createEl('div', null)
-  var status = utils.createEl('div', null)
-  searchDiv.appendChild(status)
-  searchDiv.appendChild(new InputComponent(status).render())
-  document.body.appendChild(searchDiv)
+class SearchBar {
+  render () {
+    this.container = utils.createEl('div', null)
+    this.status = utils.createEl('div', null)
+    this.container.appendChild(new InputComponent(this.status).render())
+    this.container.appendChild(this.status)
+    return this.container
+  }
 }
-
 
 //popup
 
 class popUpComponent {
-  constructor(data) {
-    this.data = data;
+  constructor (name, homeworld) {
+    this.name = name;
+    this.homeworld = homeworld
   }
 
   render () {
-    this.popUp = utils.createEl('div', "a popup about " + this.data + " - click to close", "blueCenter")
+    this.popUp = utils.createEl('div', null, "blueCenter")
     this.popUp.id = "popUp"
-    this.popUp.addEventListener("click", () => {
-      document.body.removeChild(this.popUp)
-    }, false)
+
+    this.loading = utils.createEl('p', "loading")
+    this.loading.id = "popup_loading"
+    this.popUp.appendChild(this.loading)
+  
+    axios.get(this.homeworld).then((res) => {
+      this.popUp.removeChild(document.getElementById("popup_loading"))
+
+      this.close_button = utils.createEl('div', 'X')
+      this.close_button.addEventListener("click", () => {
+        document.body.removeChild(this.popUp)
+      }, false)
+      this.popUp.appendChild(this.close_button)
+
+      this.content_name = utils.createEl('h4', this.name)
+      this.content_homeworld = utils.createEl('p', this.name + "'s home planet is " + res.data.name)
+      this.popUp.appendChild(this.content_name)
+      this.popUp.appendChild(this.content_homeworld)
+    })
 
     if (!document.getElementById('popUp')) {
       return this.popUp
-    }  else {   
-      document.body.removeChild(document.getElementById("popUp")) //move this to runtime?
+    } else {
+      document.body.removeChild(document.getElementById("popUp"))
       return this.popUp
     }
   }
 }
 
-
-//list entry
+//entry
 
 class EntryComponent {
   constructor (name, url) {
@@ -137,9 +154,7 @@ class EntryComponent {
     this.entry.addEventListener("click", () => {
       axios.get(this.url)
       .then((res) => {
-        // console.log(res.data) //add more data
-        document.body.appendChild(new popUpComponent(res.data.name).render())
-        //create pointer to parent container in constructor, call method on parent instead
+        document.body.appendChild(new popUpComponent(res.data.name, res.data.homeworld).render())
         //this.container.appendChild
       })
       .catch((err) => {
@@ -155,11 +170,15 @@ class EntryComponent {
 window.onload = () => {
   //var container = utils.createEl('div', null, 'some container class')
   //container should have a render
-  axios.get('http://swapi.co/api/people/')
+  //add resize listener
+  //and a next/prev page listener
+
+  document.body.appendChild(new SearchBar().render())
+
+  axios.get('http://swapi.co/api/people/') //url can be passed in constructor of container
   .then((res) => {
-    searchBar()
     res.data.results.forEach((entry) => {
-      document.body.appendChild(new EntryComponent(entry.name, entry.url).render()) //then add container params here to call re render
+      document.body.appendChild(new EntryComponent(entry.name, entry.url).render())
     })
   })
   .catch((err) => {
