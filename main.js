@@ -1,7 +1,15 @@
+var colors = {
+    background: "white",
+    main: "lightgrey",
+    secondary: "#01579B",
+    accent: "#212121"
+}
+
 var styles = {
   "list": {
-    background: "lightgrey",
+    background: colors.accent,
     width: "100%",
+    color: colors.secondary,
     "padding": "5px",
     "font-size": "1.25em",
     "font-family": "Open Sans, sans-serif",
@@ -9,9 +17,23 @@ var styles = {
   "blueCenter": {
     width: "100%",
     position: "absolute",
+    color: colors.main,
     "font-family": "Open Sans, sans-serif",
     "text-align": "center",
-    "background": "lightblue"
+    "background": colors.accent
+  },
+  "popUp": {
+    position: "absolute",
+    margin: "auto",
+    left: 0,
+    right: 0,
+    top: 0,
+    width: window.innerWidth/2 ,
+    "min-height": "150px",
+    "font-family": "Open Sans, sans-serif",
+    "text-align": "center",
+    "background": colors.accent,
+    color: colors.secondary
   },
   "searchBar": {
     width:  "100%",
@@ -19,6 +41,8 @@ var styles = {
     "padding-left": "5px",
     "font-family": "Open Sans, sans-serif",
     "font-size": "2em",
+    color: colors.main,
+    background: colors.secondary,
     border: "none",
   },
   "wrapper": {
@@ -27,9 +51,8 @@ var styles = {
     left: window.innerWidth/4,
     width: window.innerWidth/2,
     height: window.innerHeight/2,
-    border: "1px solid black",
     "overflow": "hidden",
-    background: "lightgrey"
+    background: colors.accent
   },
   "entry_wrapper": {
     height: "70%",
@@ -37,7 +60,8 @@ var styles = {
     "overflow-y": "scroll",
   },
   "navigation": {
-    background: "white",
+    background: colors.secondary,
+    color: colors.accent,
     height: "15%"
   },
   "button": {
@@ -50,8 +74,8 @@ var styles = {
   "current": {
     width: "15%",
     height: "100%",
-    background: "lightgrey",
-    color: "grey",
+    background: colors.accent,
+    color: colors.secondary,
     "padding-top": "1%",
     "text-align": "center",
     "font-size": "1.75em",
@@ -61,7 +85,7 @@ var styles = {
   "loading": {
     "padding-top": "10%",
     "padding-left": "1%",
-    color: "grey",
+    color: colors.secondary,
     "font-size": "1.5em",
     "font-family": "Open Sans, sans-serif",
   }
@@ -158,7 +182,7 @@ class popUpComponent {
   }
 
   render () {
-    this.popUp = utils.createEl('div', null, "blueCenter")
+    this.popUp = utils.createEl('div', null, "popUp")
     this.popUp.id = "popUp"
 
     this.loading = utils.createEl('p', "loading")
@@ -246,8 +270,8 @@ class Navigation {
 
     this.prev_placeholder = utils.createEl('div', "prev", "button")
     this.next_placeholder = utils.createEl('div', "next", "button")
-    this.prev_placeholder.style.color = "lightgrey"
-    this.next_placeholder.style.color = "lightgrey"
+    this.prev_placeholder.style.color = colors.main
+    this.next_placeholder.style.color = colors.main
     this.current = utils.createEl('div', this.page, 'current')
 
     this.navigation_wrapper.appendChild(this.current)
@@ -281,7 +305,7 @@ class NavButton {
   render () {
     this.button = utils.createEl('div', this.label, "button")
     if(this.disabled) {
-      this.button.style.color = "lightgrey"
+      this.button.style.color = colors.main
     }
     if (!this.disabled) {
       this.button.addEventListener('click', () => {
