@@ -1,18 +1,36 @@
 var styles = {
   "list": {
-    background: "orange",
-    width: window.innerWidth / 3,
+    background: "lightgrey",
+    width: "100%",
+    "padding": "5px",
     "font-size": "1.25em",
     "font-family": "sans-serif",
   },
   "blueCenter": {
-    width: window.innerWidth / 3,
+    width: "100%",
     "font-family": "sans-serif",
     "text-align": "center",
     "background": "lightblue"
   },
   "searchBar": {
-    width: window.innerWidth / 3
+    width:  "100%",
+    height: "15%",
+    "font-size": "2em",
+    border: "none",
+  },
+  "wrapper": {
+    position: "absolute",
+    top: window.innerHeight/4,
+    left: window.innerWidth/4,
+    width: window.innerWidth/2,
+    height: window.innerHeight/2,
+    "overflow": "hidden",
+    background: "grey"
+  },
+  "entry_wrapper": {
+    height: "70%",
+    "overflow-x": "hidden",
+    "overflow-y": "scroll",
   }
 }
 
@@ -165,23 +183,39 @@ class EntryComponent {
   }
 }
 
+class Main {
+  render () {
+    this.wrapper = utils.createEl('div', null, 'wrapper')
+    this.wrapper.id = "Main"
+    this.wrapper.appendChild(new SearchBar().render())
+    this.entry_wrapper = utils.createEl('div', null, 'entry_wrapper')
+    this.wrapper.appendChild(this.entry_wrapper)
+    axios.get('http://swapi.co/api/people/') //url can be passed in constructor of container
+    .then((res) => {
+      res.data.results.forEach((entry) => {
+        this.entry_wrapper.appendChild(new EntryComponent(entry.name, entry.url).render())
+      })
+    })
+    .catch((err) => {
+      console.log(err)
+    })
+    return this.wrapper
+  }
+}
+
 //init
+var init = () => {
+  //and a next/prev page listener
+  document.body.appendChild(new Main().render())
+  window.addEventListener("resize", () => {
+    var target = document.getElementById("Main")
+    target.style.width = window.innerWidth/2
+    target.style.height = window.innerHeight/2
+    target.style.left = window.innerWidth/4
+    target.style.top = window.innerHeight/4
+  }, false)
+}
 
 window.onload = () => {
-  //var container = utils.createEl('div', null, 'some container class')
-  //container should have a render
-  //add resize listener
-  //and a next/prev page listener
-
-  document.body.appendChild(new SearchBar().render())
-
-  axios.get('http://swapi.co/api/people/') //url can be passed in constructor of container
-  .then((res) => {
-    res.data.results.forEach((entry) => {
-      document.body.appendChild(new EntryComponent(entry.name, entry.url).render())
-    })
-  })
-  .catch((err) => {
-    console.log(err)
-  })
+  init()
 }
