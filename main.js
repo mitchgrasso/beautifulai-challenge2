@@ -4,17 +4,18 @@ var styles = {
     width: "100%",
     "padding": "5px",
     "font-size": "1.25em",
-    "font-family": "sans-serif",
+    "font-family": "Open Sans, sans-serif",
   },
   "blueCenter": {
     width: "100%",
-    "font-family": "sans-serif",
+    "font-family": "Open Sans, sans-serif",
     "text-align": "center",
     "background": "lightblue"
   },
   "searchBar": {
     width:  "100%",
     height: "15%",
+    "font-family": "Open Sans, sans-serif",
     "font-size": "2em",
     border: "none",
   },
@@ -24,6 +25,7 @@ var styles = {
     left: window.innerWidth/4,
     width: window.innerWidth/2,
     height: window.innerHeight/2,
+    border: "1px solid black",
     "overflow": "hidden",
     background: "grey"
   },
@@ -31,6 +33,9 @@ var styles = {
     height: "70%",
     "overflow-x": "hidden",
     "overflow-y": "scroll",
+  },
+  "button": {
+    background: "lime"
   }
 }
 
@@ -173,7 +178,6 @@ class EntryComponent {
       axios.get(this.url)
       .then((res) => {
         document.body.appendChild(new popUpComponent(res.data.name, res.data.homeworld).render())
-        //this.container.appendChild
       })
       .catch((err) => {
         console.log(err)
@@ -183,14 +187,14 @@ class EntryComponent {
   }
 }
 
-class Main {
+class EntryWrapper {
+  constructor (val) {
+    this.url = "http://swapi.co/api/people/?page=" + val
+  }
+
   render () {
-    this.wrapper = utils.createEl('div', null, 'wrapper')
-    this.wrapper.id = "Main"
-    this.wrapper.appendChild(new SearchBar().render())
     this.entry_wrapper = utils.createEl('div', null, 'entry_wrapper')
-    this.wrapper.appendChild(this.entry_wrapper)
-    axios.get('http://swapi.co/api/people/') //url can be passed in constructor of container
+    axios.get(this.url) 
     .then((res) => {
       res.data.results.forEach((entry) => {
         this.entry_wrapper.appendChild(new EntryComponent(entry.name, entry.url).render())
@@ -199,14 +203,79 @@ class Main {
     .catch((err) => {
       console.log(err)
     })
+    return this.entry_wrapper
+  }
+}
+
+//navigation will just call init with new page on click event
+//class Navigation { constructor takes current page }
+
+class Navigation {
+  constructor (page) {
+    this.page = page
+  }
+
+  render () {
+    console.log(this.page)
+    this.navigation_wrapper = utils.createEl('div', null)
+    axios.get("http://swapi.co/api/people/?page=" + this.page)
+    .then((res) => {
+      console.log(res.data.previous, res.data.next)
+      //put placeholders here
+      this.previousDisabled = !res.data.previous
+      this.nextDisabled = !res.data.next
+      this.navigation_wrapper.appendChild(new NavButton("previous", this.page -1, this.previousDisabled).render())
+      this.navigation_wrapper.appendChild(new NavButton("next", this.page +1, this.nextDisabled).render())
+      //circle with current page
+    })
+    .catch((err) => {
+      console.log(err)
+    })
+    return this.navigation_wrapper
+  }
+}
+
+class NavButton {
+  constructor (label, page, disabled) {
+    this.label = label
+    this.page = page
+    this.disabled = disabled
+  }
+
+  render () {
+    this.button = utils.createEl('div', this.label, "button")
+    if (!this.disabled) {
+      this.button.addEventListener('click', () => {
+        init(this.page)
+      }, false)
+    }
+    return this.button
+  }
+}
+
+class Main {
+  constructor (page) {
+    this.page = page
+  }
+  render () {
+    this.wrapper = utils.createEl('div', null, 'wrapper')
+    this.wrapper.id = "Main"
+    this.wrapper.appendChild(new SearchBar().render())
+    this.wrapper.appendChild(new EntryWrapper(this.page).render())
+    this.wrapper.appendChild(new Navigation(this.page).render())
     return this.wrapper
   }
 }
 
 //init
-var init = () => {
-  //and a next/prev page listener
-  document.body.appendChild(new Main().render())
+var init = (page) => {
+  //if main length > 0
+    //document body remove child by id 'main'
+  document.body.appendChild(new Main(page).render())
+}
+
+window.onload = () => {
+  init(1)
   window.addEventListener("resize", () => {
     var target = document.getElementById("Main")
     target.style.width = window.innerWidth/2
@@ -214,8 +283,4 @@ var init = () => {
     target.style.left = window.innerWidth/4
     target.style.top = window.innerHeight/4
   }, false)
-}
-
-window.onload = () => {
-  init()
 }
