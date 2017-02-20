@@ -8,6 +8,7 @@ var styles = {
   },
   "blueCenter": {
     width: "100%",
+    position: "absolute",
     "font-family": "Open Sans, sans-serif",
     "text-align": "center",
     "background": "lightblue"
@@ -50,13 +51,19 @@ var styles = {
     width: "15%",
     height: "100%",
     background: "lightgrey",
-    "border-right": "1px solid black",
-    "border-top": "1px solid black",
+    color: "grey",
     "padding-top": "1%",
     "text-align": "center",
     "font-size": "1.75em",
     "font-family": "Open Sans, sans-serif",
     display: "inline-block",
+  },
+  "loading": {
+    "padding-top": "10%",
+    "padding-left": "1%",
+    color: "grey",
+    "font-size": "1.5em",
+    "font-family": "Open Sans, sans-serif",
   }
 }
 
@@ -102,6 +109,9 @@ class InputComponent {
         this.recursiveSearch(val + 1, input)
       } else {
         this.status.innerHTML = "not found"
+        setTimeout(() => {
+          this.status.innerHTML = null
+        }, 1500)
       }
     })
     .catch((err) => {
@@ -207,10 +217,13 @@ class EntryWrapper {
 
   render () {
     this.entry_wrapper = utils.createEl('div', null, 'entry_wrapper')
+    this.placeholder = utils.createEl('h1', 'Loading', 'loading')
+    this.entry_wrapper.appendChild(this.placeholder)
     //placeholder
 
     axios.get(this.url) 
     .then((res) => {
+      this.entry_wrapper.removeChild(this.placeholder)
       res.data.results.forEach((entry) => {
         this.entry_wrapper.appendChild(new EntryComponent(entry.name, entry.url).render())
       })
@@ -230,16 +243,24 @@ class Navigation {
   render () {
     this.navigation_wrapper = utils.createEl('div', null, "navigation")
     this.navigation_wrapper.id = "navigation"
-    //placeholders
-    //current page circle
 
+    this.prev_placeholder = utils.createEl('div', "prev", "button")
+    this.next_placeholder = utils.createEl('div', "next", "button")
+    this.prev_placeholder.style.color = "lightgrey"
+    this.next_placeholder.style.color = "lightgrey"
     this.current = utils.createEl('div', this.page, 'current')
+
     this.navigation_wrapper.appendChild(this.current)
+    this.navigation_wrapper.appendChild(this.prev_placeholder)
+    this.navigation_wrapper.appendChild(this.next_placeholder)
 
     axios.get("http://swapi.co/api/people/?page=" + this.page)
     .then((res) => {
       this.previousDisabled = !res.data.previous
       this.nextDisabled = !res.data.next
+
+      this.navigation_wrapper.removeChild(this.prev_placeholder)
+      this.navigation_wrapper.removeChild(this.next_placeholder)
       this.navigation_wrapper.appendChild(new NavButton("prev", this.page -1, this.previousDisabled).render())
       this.navigation_wrapper.appendChild(new NavButton("next", this.page +1, this.nextDisabled).render())
     })
@@ -259,6 +280,9 @@ class NavButton {
 
   render () {
     this.button = utils.createEl('div', this.label, "button")
+    if(this.disabled) {
+      this.button.style.color = "lightgrey"
+    }
     if (!this.disabled) {
       this.button.addEventListener('click', () => {
         init(this.page)
