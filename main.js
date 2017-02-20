@@ -28,119 +28,138 @@ var utils = {
         el.style[key] = styles[className][key]
       }
     }
+  },
+  createEl: (el, content, className) => {
+    el = document.createElement(el)
+    el.innerHTML = content
+    utils.styleElement(el, className)
+    return el
   }
 }
 
+//////////////////////////////////////////////////////
+
+class InputComponent {
+  constructor (status) {
+    this.status = status
+  }
+
+  handleSubmit (input) {
+    var recursiveSearch = (val) => {
+      var url = "http://swapi.co/api/people/?page=" + val
+      axios.get(url)
+      .then((res) => {
+        var stats = res.data.results.filter((entry) => {
+          return entry.name.toLowerCase() === input.toLowerCase()
+        })
+        if(stats[0]) {
+          this.status.innerHTML = null
+          document.body.appendChild(new popUpComponent(input).render())
+          //this.container.appendChild
+          return
+        }
+        if (!stats.length && res.data.next) {
+          recursiveSearch(val + 1)
+        } else {
+          this.status.innerHTML = "not found"
+        }
+      })
+      .catch((err) => {
+        console.log(err)
+      })
+    }
+    recursiveSearch(1)
+    utils.styleElement(this.status, "blueCenter")
+    this.status.innerHTML = "searching for: " + input
+  }
+
+  handleKeyDown (input, e) {
+    if (e.key === 'Enter') {
+      this.handleSubmit(input.value)
+      input.value = ""
+    }
+  }
+
+  render () {
+    this.input = utils.createEl('input', null, 'searchBar')
+    this.input.type = "text"
+    this.input.placeholder = "search"
+    this.input.addEventListener('keydown', this.handleKeyDown.bind(this, this.input), false)
+    return this.input
+  }
+}
+
+//searchbar
+
 var searchBar = () => {
-  var status = () => {
-    var el = document.createElement('div')
-    return el
-  }
-
-  var formInput = (status) => {
-    var handleSubmit = (input, status) => {
-      //move this
-      var recursiveSearch = (val) => {
-        var url = "http://swapi.co/api/people/?page=" + val
-        var stats
-        axios.get(url)
-        .then((res) => {
-          stats = res.data.results.filter((entry) => {
-            return entry.name.toLowerCase() === input.toLowerCase()
-          })
-          if(stats[0]) {
-            status.innerHTML = ""
-            popUp(input)
-            return
-          }
-          if (!stats.length && res.data.next) {
-            recursiveSearch(val + 1)
-          } else {
-            status.innerHTML = "not found"
-          }
-        })
-        .catch((err) => {
-          console.log(err)
-        })
-      }
-      recursiveSearch(1)
-      utils.styleElement(status, "blueCenter")
-      status.innerHTML = "searching for: " + input
-    }
-
-    var handleKeyDown = (input, status, e) => {
-      if (e.key === 'Enter') {
-        handleSubmit(input.value, status)
-        input.value = ""
-      }
-    }
-
-    var input = document.createElement('input')
-    utils.styleElement(input, "searchBar")
-    input.type = "text"
-    input.placeholder = "search"
-    input.addEventListener('keydown', handleKeyDown.bind(this, input, status), false)
-    return input
-  }
-
-  var status = status()
-  var searchDiv = document.createElement('div')
-  searchDiv.appendChild(formInput(status))
+  var searchDiv = utils.createEl('div', null)
+  var status = utils.createEl('div', null)
   searchDiv.appendChild(status)
+  searchDiv.appendChild(new InputComponent(status).render())
   document.body.appendChild(searchDiv)
 }
 
-var popUp = (data) => {
-  //this is all the render method
-  var popUp = document.createElement('div')
-  utils.styleElement(popUp, "blueCenter")
-  popUp.id = "popUp"
-  popUp.innerHTML = "a popup about " + data + " - click to close"
-  popUp.addEventListener("click", () => {
-    document.body.removeChild(popUp)
-  }, false)
-  if (!document.getElementById('popUp')) {
-    document.body.appendChild(popUp)
-  }  else {
-    document.body.removeChild(document.getElementById("popUp"))
-    document.body.appendChild(popUp)
+
+//popup
+
+class popUpComponent {
+  constructor(data) {
+    this.data = data;
+  }
+
+  render () {
+    this.popUp = utils.createEl('div', "a popup about " + this.data + " - click to close", "blueCenter")
+    this.popUp.id = "popUp"
+    this.popUp.addEventListener("click", () => {
+      document.body.removeChild(this.popUp)
+    }, false)
+
+    if (!document.getElementById('popUp')) {
+      return this.popUp
+    }  else {   
+      document.body.removeChild(document.getElementById("popUp")) //move this to runtime?
+      return this.popUp
+    }
   }
 }
 
-var PersonEntry = (name, url) => {
-  //todo -> make classes
-  var PersonDetails = (data) => {
-    var details = document.createElement("span")
-    details.innerHTML = data
-    return details
+
+//list entry
+
+class EntryComponent {
+  constructor (name, url) {
+    this.name = name
+    this.url = url
   }
 
-  var el = document.createElement("div")
-  el.addEventListener("click", () => {
-    axios.get(url)
-    .then((res) => {
-      popUp(res.data.name)
-    })
-    .catch((err) => {
-      console.log(err)
-    })
-  }, false)
-
-  utils.styleElement(el, "list")
-  el.appendChild(PersonDetails(name))
-  document.body.appendChild(el)
+  render () {
+    this.entry = utils.createEl("div", this.name, "list")
+    this.entry.addEventListener("click", () => {
+      axios.get(this.url)
+      .then((res) => {
+        // console.log(res.data) //add more data
+        document.body.appendChild(new popUpComponent(res.data.name).render())
+        //create pointer to parent container in constructor, call method on parent instead
+        //this.container.appendChild
+      })
+      .catch((err) => {
+        console.log(err)
+      })
+    }, false)
+    return this.entry
+  }
 }
+
+//init
 
 window.onload = () => {
-  searchBar()
+  //var container = utils.createEl('div', null, 'some container class')
+  //container should have a render
   axios.get('http://swapi.co/api/people/')
   .then((res) => {
+    searchBar()
     res.data.results.forEach((entry) => {
-      //fix code structure
-      //ie var list = new PersonEntry(entry.name, entry.url)
-      //list.render()
-      //etc
-      PersonEntry(entry.name, entry.url)
+      document.body.appendChild(new EntryComponent(entry.name, entry.url).render()) //then add container params here to call re render
     })
   })
   .catch((err) => {
