@@ -2,7 +2,7 @@
 
 This is the second of two engineer challenges for software developers applying for a position at Beautiful.ai.
 
-This is a harder challenge intended to evaluate candidates for a more senior engineering role. 
+This is a harder challenge intended to evaluate candidates for a more senior engineering role and should be completable in about an hour.
 
 ## Summary
 Beautiful.ai is a serverless single-page application which implements a full-stack mentality within the client. Our ideal candidate will
