@@ -23,8 +23,8 @@ With this challenge, we are asking you to implement a simple single-page Model-V
   - The url for loading people from the Star Wars API is http://swapi.co/api/people/
   - Your application should include a person model and a people collection model
   - NOTE: Your models can be simple property stores. They do not need to support validation, events, or sync with the backend.
-- Render a view that lists your people models and displays some properties from each model (like the person's name).
-- Add interactivity so that when a user clicks on any person, you dynamically load additional data about that person's homeplanet from the Star Wars API and displays it's name.  
+- Render a simple view that lists your person models and displays some properties for each (like the person's name).
+- Add interactivity so that when a user clicks on any person, you dynamically load additional data about that person's homeplanet from the Star Wars API and display it's name.  
   - The url for loading a person's homeplanet is included in the JSON properties returned for each person.
 - NOTE: Your model and view classes can be simple one-off javascript objects. You do not need to implement a full resuable framework. 
 
